@@ -1,0 +1,67 @@
+#!/usr/bin/env node
+
+var applicationjs = require('../app');
+var cleandebug = require('debug')('drawing-tool:server');
+var hyprotocol = require('http');
+
+
+var apport = normalizePort(process.env.PORT || '3000');
+applicationjs.set('port', apport);
+
+var servicenum = hyprotocol.createServer(applicationjs);
+
+servicenum.listen(apport);
+servicenum.on('error', onError);
+servicenum.on('listening', onListening);
+
+var io = applicationjs.io;
+io.attach(servicenum);
+
+function normalizePort(val) {
+  var apport = parseInt(val, 10);
+
+  if (isNaN(apport)) {
+   
+    return val;
+  }
+
+  if (apport >= 0) {
+  
+    return apport;
+  }
+
+  return false;
+}
+
+
+function onError(error) {
+  if (error.syscall !== 'listen') {
+    throw error;
+  }
+
+  var bind = typeof apport === 'string'
+    ? 'Pipe ' + apport
+    : 'Port ' + apport;
+
+  
+  switch (error.code) {
+    case 'EACCES':
+      console.error(bind + ' requires elevated privileges');
+      process.exit(1);
+      break;
+    case 'EADDRINUSE':
+      console.error(bind + ' is already in use');
+      process.exit(1);
+      break;
+    default:
+      throw error;
+  }
+}
+
+function onListening() {
+  var addr = servicenum.address();
+  var bind = typeof addr === 'string'
+    ? 'pipe ' + addr
+    : 'port ' + addr.apport;
+  cleandebug('Listening on ' + bind);
+}
